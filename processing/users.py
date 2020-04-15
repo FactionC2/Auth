@@ -1,55 +1,19 @@
 from datetime import datetime
-
-import bcrypt
 from sqlalchemy import func
+import bcrypt
 
-from logger import log
 from database import db
+from models.user import Users, UserRoles
+from logger import log
 
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, unique=True)
-    password = db.Column(db.LargeBinary)
-    role_id = db.Column(db.Integer, db.ForeignKey('user_role.id'), nullable=False)
-    created = db.Column(db.DateTime)
-    last_login = db.Column(db.DateTime)
-    enabled = db.Column(db.Boolean)
-    visible = db.Column(db.Boolean)
-
-    def change_password(self, current_password, new_password):
-        log("change_password", "Got password change request")
-        if bcrypt.checkpw(current_password.encode('utf-8'), self.password) and self.enabled:
-            self.password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-            db.session.add(self)
-            db.session.commit()
-            log("change_password", "Password changed")
-            return dict({
-                "success": True,
-                "message": 'Changed password for user: {0}'.format(self.username)
-            })
-        log("change_password", "Current password incorrect")
-        return {
-            'success': False,
-            'message': 'Invalid username or password.'
-        }
-
-    def __repr__(self):
-        return '<User: %s>' % str(self.username)
-
-
-class UserRole(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False, unique=True)
-    users = db.relationship('user', backref='user_role', lazy=True)
-
-    def __repr__(self):
-        return '<Role: %s>' % str(self.Id)
+def get_user_by_username(username):
+    return Users.query.filter(func.lower(Users.username) == func.lower(username)).first()
 
 
 def get_role_id(name):
     log("get_role_id", "Getting role {0}".format(name))
-    role = UserRole.query.filter_by(Name=name.lower()).first()
+    role = UserRoles.query.filter_by(name=name.lower()).first()
     if role:
         log("get_role_id", "Got role {0}".format(role.id))
         return role.id
@@ -60,7 +24,7 @@ def get_role_id(name):
 
 def get_role_name(role_id):
     log("get_role_name", "Getting role name {0}".format(role_id))
-    role = UserRole.query.get(role_id)
+    role = UserRoles.query.get(role_id)
     if role:
         log("get_role_name", "Got role name {0}".format(role.name))
         return role.name
@@ -89,11 +53,11 @@ def user_json(user):
 
 def authenticate_user(username, password):
     log("login_user", "Checking " + username)
-    user = User.query.filter(func.lower(User.username) == func.lower(username)).first()
+    user = Users.query.filter(func.lower(Users.username) == func.lower(username)).first()
 
     if user:
         log("login_user", "Got user: " + user.username)
-        if bcrypt.checkpw(password.encode('utf-8'), user.password) and user.Enabled:
+        if bcrypt.checkpw(password.encode('utf-8'), user.password) and user.enabled:
             log("login_user", "Login successful")
             return True
     log("login_user", "username or password no good")
@@ -101,20 +65,26 @@ def authenticate_user(username, password):
 
 
 def create_user(username, password, role_name):
-    user = User()
-    user.username = username
-    user.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    user.created = datetime.utcnow()
-    user.role_id = get_role_id(role_name)
-    user.enabled = True
-    user.visible = True
-    print('Creating user %s ' % user.username)
-    db.session.add(user)
-    db.session.commit()
-    return dict({
-        "success": True,
-        "message": 'User {0} created successfully'.format(user.username)
-    })
+    try:
+        user = Users()
+        user.username = username
+        user.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        user.created = datetime.utcnow()
+        user.role_id = get_role_id(role_name)
+        user.enabled = True
+        user.visible = True
+        print('Creating user %s ' % user.username)
+        db.session.add(user)
+        db.session.commit()
+        return dict({
+            "success": True,
+            "message": 'User {0} created successfully'.format(user.username)
+        })
+    except Exception as e:
+        return dict({
+            "success": False,
+            "message": str(e)
+        }), 500
 
 
 def update_user(user_id, username=None, role_id=None, enabled=None, visible=None):
@@ -123,7 +93,7 @@ def update_user(user_id, username=None, role_id=None, enabled=None, visible=None
             "success": False,
             "message": 'Can not change the admin or system user'
         })
-    user = User.query.get(user_id)
+    user = Users.query.get(user_id)
 
     if username is not None:
         user.username = username
@@ -144,7 +114,7 @@ def update_user(user_id, username=None, role_id=None, enabled=None, visible=None
 
 # This is called when an admin changes a users password
 def update_password(user_id, new_password):
-    user = User.query.get(user_id)
+    user = Users.query.get(user_id)
     if user:
         log("update_password", "got user: " + user.username)
         user.password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
@@ -157,4 +127,4 @@ def update_password(user_id, new_password):
     return dict({
         "success": False,
         "message": 'Invalid User Id.'
-    })
+    }), 400

@@ -7,11 +7,11 @@ verify_ssl = true
 
 [packages]
 flask = "*"
-flask-jwt-extended = "*"
 sqlalchemy = "*"
 psycopg2-binary = "*"
 flask-sqlalchemy = "*"
 bcrypt = "*"
+cryptography = "*"
 
 [requires]
 python_version = "3.7"
