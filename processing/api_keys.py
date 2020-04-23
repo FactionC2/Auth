@@ -12,8 +12,8 @@ def api_key_json(api_key):
     return {
         "id": api_key.id,
         "name": api_key.name,
-        "owner_id": api_key.owner_id,
-        "type": api_key.type,
+        "role_id": api_key.role_id,
+        "description": api_key.description,
         "enabled": api_key.enabled,
         "visible": api_key.visible
     }
@@ -25,16 +25,14 @@ def random_string(length=15):
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in range(length)])
 
 
-def new_api_key(api_key_type, user_id, owner_id=None):
+def new_api_key(api_key_description, user_id, role_id=None):
     api_key = ApiKeys()
     api_key.user_id = user_id
-    api_key.owner_id = user_id
 
-    # Owner ID is used when an api key is created for another account, for example when a user creates a new transport
-    # the api key for the transport is created under the system user (who has no privs)
-    if owner_id:
-        api_key.owner_id = owner_id
-    api_key.type = api_key_type
+    # Role ID is used for API keys created by Faction (for services, transports, etc)
+    if role_id:
+        api_key.role_id = role_id
+    api_key.description = api_key_description
 
     token = random_string(48)
     api_key.name = random_string(16)

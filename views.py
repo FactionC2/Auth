@@ -1,9 +1,13 @@
 from flask import jsonify, request, Blueprint, current_app
-from processing.users import create_user, authenticate_user, get_user_by_username, get_role_name
+from processing.users import create_user, authenticate_user, get_user_by_username, get_role_name, get_role_id
 from processing.api_keys import new_api_key, verify_api_key
-from itsdangerous import base64_encode
+import jwt
+
+from factionpy.logger import log
+from factionpy.config import get_config_value
+
 from logger import log
-auth = Blueprint('auth', __name__,
+auth = Blueprint('auth-service', __name__,
                  template_folder='templates',
                  static_folder='static')
 
@@ -71,9 +75,38 @@ def hasura_verify():
                 "X-Hasura-Role": get_role_name(user.role_id)
             })
         else:
-            return {"success": False, "message": "invalid api key or secret"}
+            return {"success": False, "message": "invalid api key or secret"}, 401
     else:
         return {"success": False, "message": "missing required headers: access_key_name or access_secret"}
+
+
+@auth.route('/auth/service/', methods=['GET'])
+def bootstrap():
+    token = request.headers.get('X-Faction-Service-Auth')
+    faction_key = get_config_value('FACTION_SERVICE_SECRET')
+    try:
+        result = jwt.decode(token, faction_key)
+    except Exception as e:
+        return dict({
+            "success": False,
+            "message": f"Could not decode JWT. Error: {e}"
+        }), 401
+    service_name = result.get("service_name", None)
+    role = result.get("role", None)
+
+    if not service_name or not role:
+        return dict({
+            "success": False,
+            "message": "JWT does not contain required data."
+        }), 401
+    else:
+        role_id = get_role_id(role)
+        user = get_user_by_username("system")
+        result = new_api_key(f"[service] {service_name}", user_id=user.id, role_id=role_id)
+        return dict({
+            "success": True,
+            "access_key": result['api_key']
+        })
 
 
 # curl -X POST http://localhost:5000/register/ -H 'Content-Type: application/json' -d '{"username": "test2", "password": "test", "user_role": "operator"}'

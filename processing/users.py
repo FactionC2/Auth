@@ -73,7 +73,7 @@ def create_user(username, password, role_name):
         user.role_id = get_role_id(role_name)
         user.enabled = True
         user.visible = True
-        print('Creating user %s ' % user.username)
+        log("create_user", "Creating user: {}".format(username))
         db.session.add(user)
         db.session.commit()
         return dict({
@@ -128,3 +128,20 @@ def update_password(user_id, new_password):
         "success": False,
         "message": 'Invalid User Id.'
     }), 400
+
+
+def create_user_role(role_name):
+    try:
+        user_role = UserRoles()
+        user_role.name = role_name
+        db.session.add(user_role)
+        db.session.commit()
+        return dict({
+            "success": True,
+            "message": "Role {} created".format(role_name)
+        })
+    except Exception as e:
+        return dict({
+            "success": False,
+            "message": str(e)
+        }), 500

@@ -12,6 +12,8 @@ psycopg2-binary = "*"
 flask-sqlalchemy = "*"
 bcrypt = "*"
 cryptography = "*"
+pyjwt = "*"
+factionpy = "==2020.4.22a0"
 
 [requires]
 python_version = "3.7"
