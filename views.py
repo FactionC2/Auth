@@ -1,4 +1,4 @@
-from flask import jsonify, request, Blueprint, current_app
+from flask import request, Blueprint
 from processing.users import create_user, authenticate_user, get_user_by_username, get_role_name, get_role_id
 from processing.api_keys import new_api_key, verify_api_key
 import jwt
@@ -43,20 +43,11 @@ def login():
 # curl http://localhost:5000/verify/ -H 'x-api-key: oe0y7pq3xicEEw8u.6rdnbyOJowV9iIFdFtMweTCsi03Tnu4Qqj4T8qUcvKpQwVPh'
 @auth.route('/verify/', methods=['GET'])
 def verify():
-    access_key = request.headers.get('x-api-key', None)
+    access_key = request.headers.get('x-faction-api-key', None)
     if access_key:
-        user = verify_api_key(access_key)
-        if user:
-            return dict({
-                "success": True,
-                "username": user.username,
-                "id": user.id,
-                "role": get_role_name(user.role_id),
-                "enabled": user.enabled,
-                "visible": user.visible,
-                "created": user.created,
-                "last_login": user.last_login
-            })
+        user_info = verify_api_key(access_key)
+        if user_info:
+            return user_info
         else:
             return {"success": False, "message": "invalid api key or secret"}
     else:
@@ -66,18 +57,19 @@ def verify():
 # curl http://localhost:5000/verify/ -H 'x-api-key: oe0y7pq3xicEEw8u.6rdnbyOJowV9iIFdFtMweTCsi03Tnu4Qqj4T8qUcvKpQwVPh'
 @auth.route('/verify/hasura/', methods=['GET'])
 def hasura_verify():
-    access_key = request.headers.get('x-api-key', None)
+    access_key = request.headers.get('x-faction-api-key', None)
     if access_key:
-        user = verify_api_key(access_key)
-        if user:
+        user_info = verify_api_key(access_key)
+
+        if user_info:
             return dict({
-                "X-Hasura-User-Id": user.id,
-                "X-Hasura-Role": get_role_name(user.role_id)
+                "X-Hasura-User-Id": user_info["id"],
+                "X-Hasura-Role": user_info["role"]
             })
         else:
-            return {"success": False, "message": "invalid api key or secret"}, 401
+            return {"success": "False", "message": "invalid api key or secret"}, 401
     else:
-        return {"success": False, "message": "missing required headers: access_key_name or access_secret"}
+        return {"success": "False", "message": "missing required headers: access_key"}
 
 
 @auth.route('/auth/service/', methods=['GET'])
@@ -105,7 +97,7 @@ def bootstrap():
         result = new_api_key(f"[service] {service_name}", user_id=user.id, role_id=role_id)
         return dict({
             "success": True,
-            "access_key": result['api_key']
+            "api_key": result['api_key']
         })
 
 

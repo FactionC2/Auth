@@ -6,6 +6,7 @@ from datetime import datetime
 from database import db
 from models.api_key import ApiKeys
 from models.user import Users
+from processing.users import get_role_name
 
 
 def api_key_json(api_key):
@@ -86,5 +87,19 @@ def verify_api_key(api_key):
             user.last_login = datetime.utcnow()
             db.session.add(user)
             db.session.commit()
-            return user
+            role_id = user.role_id
+            if user.username.lower() == "system":
+                role_id = api_key.role_id
+            return dict({
+                "success": True,
+                "username": user.username,
+                "id": user.id,
+                "role": get_role_name(role_id),
+                "enabled": str(user.enabled),
+                "visible": str(user.visible),
+                "created": str(user.created),
+                "last_login": user.last_login,
+                "api_key": api_key.name,
+                "api_key_description": api_key.description
+            })
     return None
