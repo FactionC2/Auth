@@ -1,10 +1,8 @@
 from flask import request, Blueprint
+from config import JWT_SECRET
 from processing.users import create_user, authenticate_user, get_user_by_username, get_role_name, get_role_id
 from processing.api_keys import new_api_key, verify_api_key
 import jwt
-
-from factionpy.logger import log
-from factionpy.config import get_config_value
 
 from logger import log
 auth = Blueprint('auth-service', __name__,
@@ -75,9 +73,9 @@ def hasura_verify():
 @auth.route('/auth/service/', methods=['GET'])
 def bootstrap():
     token = request.headers.get('X-Faction-Service-Auth')
-    faction_key = get_config_value('FACTION_SERVICE_SECRET')
+
     try:
-        result = jwt.decode(token, faction_key)
+        result = jwt.decode(token, JWT_SECRET)
     except Exception as e:
         return dict({
             "success": False,
@@ -94,7 +92,8 @@ def bootstrap():
     else:
         role_id = get_role_id(role)
         user = get_user_by_username("system")
-        result = new_api_key(f"[service] {service_name}", user_id=user.id, role_id=role_id)
+        result = new_api_key(
+            f"[service] {service_name}", user_id=user.id, role_id=role_id)
         return dict({
             "success": True,
             "api_key": result['api_key']
@@ -102,6 +101,7 @@ def bootstrap():
 
 
 # curl -X POST http://localhost:5000/register/ -H 'Content-Type: application/json' -d '{"username": "test2", "password": "test", "user_role": "operator"}'
+# TODO: Require actual authentication for this lol
 @auth.route('/register/', methods=['POST'])
 def register_user():
     username = request.json.get('username', None)

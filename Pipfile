@@ -16,4 +16,4 @@ pyjwt = "*"
 factionpy = "==2020.4.22a0"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
