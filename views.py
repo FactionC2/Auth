@@ -41,23 +41,35 @@ def login():
 # curl http://localhost:5000/verify/ -H 'x-api-key: oe0y7pq3xicEEw8u.6rdnbyOJowV9iIFdFtMweTCsi03Tnu4Qqj4T8qUcvKpQwVPh'
 @auth.route('/verify/', methods=['GET'])
 def verify():
-    access_key = request.headers.get('x-faction-api-key', None)
-    if access_key:
-        user_info = verify_api_key(access_key)
+    authorization_header = request.headers.get('Authorization', None)
+
+    if authorization_header:
+        if authorization_header.index(' ') > 0:
+            token = authorization_header.split(' ')[1]
+        else:
+            token = authorization_header
+    if token:
+        user_info = verify_api_key(token)
         if user_info:
             return user_info
         else:
             return {"success": False, "message": "invalid api key or secret"}
     else:
-        return {"success": False, "message": "missing required headers: access_key_name or access_secret"}
+        return {"success": False, "message": "missing or incorrectly formatted authorization header"}
 
 
 # curl http://localhost:5000/verify/ -H 'x-api-key: oe0y7pq3xicEEw8u.6rdnbyOJowV9iIFdFtMweTCsi03Tnu4Qqj4T8qUcvKpQwVPh'
 @auth.route('/verify/hasura/', methods=['GET'])
 def hasura_verify():
-    access_key = request.headers.get('x-faction-api-key', None)
-    if access_key:
-        user_info = verify_api_key(access_key)
+    authorization_header = request.headers.get('Authorization', None)
+    token = None
+    if authorization_header:
+        if authorization_header.index(' ') > 0:
+            token = authorization_header.split(' ')[1]
+        else:
+            token = authorization_header
+    if token:
+        user_info = verify_api_key(token)
 
         if user_info:
             return dict({
@@ -100,7 +112,7 @@ def bootstrap():
         })
 
 
-# curl -X POST http://localhost:5000/register/ -H 'Content-Type: application/json' -d '{"username": "test2", "password": "test", "user_role": "operator"}'
+# curl -X POST https://localhost:8443/api/v1/auth/register/ -H 'Content-Type: application/json' -d '{"username": "test2", "password": "test", "user_role": "operator"}'
 # TODO: Require actual authentication for this lol
 @auth.route('/register/', methods=['POST'])
 def register_user():

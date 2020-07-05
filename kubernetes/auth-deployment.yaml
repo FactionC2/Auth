@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faction-auth
+spec:
+  selector:
+    matchLabels:
+      app: faction-auth
+  template:
+    metadata:
+      labels:
+        app: faction-auth
+    spec:
+      containers:
+        - name: faction-auth
+          image: faction/auth
+          ports:
+            - containerPort: 5000
+          env:
+            - name: FLASK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: flask-secret
+                  name: auth-secrets
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: jwt-secret
+                  name: auth-secrets
+            - name: FACTION_DB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: db-url
+      imagePullSecrets:
+        - name: regcred

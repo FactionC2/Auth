@@ -1,7 +1,7 @@
 from logger import log
 from models.user import Users, UserRoles
 from processing.users import create_user, create_user_role
-from config import ADMIN_PASSWORD, SYSTEM_PASSWORD
+# from config import ADMIN_PASSWORD, SYSTEM_PASSWORD
 
 AUTH_ROLES = ["admin", "agent", "operator", "read_only", "transport", "nobody"]
 
