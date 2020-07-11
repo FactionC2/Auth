@@ -3,7 +3,7 @@ from flask import Flask
 from database import db
 from views import auth
 from config import DB_URI
-from bootstrap import create_default_user_roles
+from bootstrap import create_default_user_roles, create_default_users
 
 def create_app():
     app = Flask(__name__)
@@ -15,6 +15,7 @@ def create_app():
     app.register_blueprint(auth, url_prefix='')
     app.app_context().push()
     create_default_user_roles()
+    create_default_users()
     return app
 
 

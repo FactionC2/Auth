@@ -65,6 +65,7 @@ def authenticate_user(username, password):
 
 
 def create_user(username, password, role_name):
+    print(f"Creating user: {username}")
     try:
         user = Users()
         user.username = username
@@ -81,6 +82,7 @@ def create_user(username, password, role_name):
             "message": 'User {0} created successfully'.format(user.username)
         })
     except Exception as e:
+        print(f"Failed to create user: {e}")
         return dict({
             "success": False,
             "message": str(e)

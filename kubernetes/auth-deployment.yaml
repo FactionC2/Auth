@@ -27,6 +27,16 @@ spec:
                 secretKeyRef:
                   key: jwt-secret
                   name: auth-secrets
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: admin-password
+                  name: auth-secrets
+            - name: SYSTEM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: system-password
+                  name: auth-secrets
             - name: FACTION_DB_URI
               valueFrom:
                 secretKeyRef:

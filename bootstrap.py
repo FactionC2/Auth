@@ -1,7 +1,7 @@
 from logger import log
 from models.user import Users, UserRoles
 from processing.users import create_user, create_user_role
-# from config import ADMIN_PASSWORD, SYSTEM_PASSWORD
+from config import ADMIN_PASSWORD, SYSTEM_PASSWORD
 
 AUTH_ROLES = ["admin", "agent", "operator", "read_only", "transport", "nobody"]
 
@@ -20,6 +20,8 @@ def create_default_users():
     users = Users.query.all()
     if len(users) == 0:
         log("create_default_users", "creating users")
-        create_user("system", SYSTEM_PASSWORD, "nobody")
+        print(f"Admin Password: {ADMIN_PASSWORD}")
         create_user("admin", ADMIN_PASSWORD, "admin")
+        print(f"System Password: {SYSTEM_PASSWORD}")
+        create_user("system", SYSTEM_PASSWORD, "nobody")
 

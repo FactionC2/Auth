@@ -58,7 +58,7 @@ def verify():
         return {"success": False, "message": "missing or incorrectly formatted authorization header"}
 
 
-# curl http://localhost:5000/verify/ -H 'x-api-key: oe0y7pq3xicEEw8u.6rdnbyOJowV9iIFdFtMweTCsi03Tnu4Qqj4T8qUcvKpQwVPh'
+# curl http://localhost:5000/verify/ -H 'Authorization: Bearer oe0y7pq3xicEEw8u.6rdnbyOJowV9iIFdFtMweTCsi03Tnu4Qqj4T8qUcvKpQwVPh'
 @auth.route('/verify/hasura/', methods=['GET'])
 def hasura_verify():
     authorization_header = request.headers.get('Authorization', None)
@@ -82,27 +82,32 @@ def hasura_verify():
         return {"success": "False", "message": "missing required headers: access_key"}
 
 
-@auth.route('/auth/service/', methods=['GET'])
+@auth.route('/service/', methods=['GET'])
 def bootstrap():
-    token = request.headers.get('X-Faction-Service-Auth')
-
+    authorization_header = request.headers.get('Authorization', None)
+    token = None
+    if authorization_header:
+        if authorization_header.index(' ') > 0:
+            token = authorization_header.split(' ')[1]
+        else:
+            token = authorization_header
+    log("auth_service", f"Got token: {token}")
     try:
-        result = jwt.decode(token, JWT_SECRET)
+        result = jwt.decode(token, JWT_SECRET, algorithms="HS256")
     except Exception as e:
         return dict({
             "success": False,
             "message": f"Could not decode JWT. Error: {e}"
         }), 401
     service_name = result.get("service_name", None)
-    role = result.get("role", None)
 
-    if not service_name or not role:
+    if not service_name:
         return dict({
             "success": False,
             "message": "JWT does not contain required data."
         }), 401
     else:
-        role_id = get_role_id(role)
+        role_id = get_role_id("admin")
         user = get_user_by_username("system")
         result = new_api_key(
             f"[service] {service_name}", user_id=user.id, role_id=role_id)
