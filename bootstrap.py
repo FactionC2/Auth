@@ -3,7 +3,7 @@ from models.user import Users, UserRoles
 from processing.users import create_user, create_user_role
 from config import ADMIN_PASSWORD, SYSTEM_PASSWORD
 
-AUTH_ROLES = ["admin", "agent", "operator", "read_only", "relay", "nobody"]
+AUTH_ROLES = ["admin", "agent", "operator", "read_only", "transport", "nobody"]
 
 
 def create_default_user_roles():
@@ -23,5 +23,5 @@ def create_default_users():
         print(f"Admin Password: {ADMIN_PASSWORD}")
         create_user("admin", ADMIN_PASSWORD, "admin")
         print(f"System Password: {SYSTEM_PASSWORD}")
-        create_user("system", SYSTEM_PASSWORD, "admin")
+        create_user("system", SYSTEM_PASSWORD, "nobody")
 
