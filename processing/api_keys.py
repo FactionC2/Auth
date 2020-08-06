@@ -7,6 +7,7 @@ from database import db
 from models.api_key import ApiKeys
 from models.user import Users
 from processing.users import get_role_name
+from factionpy.logger import log
 
 
 def api_key_json(api_key):
@@ -50,7 +51,7 @@ def new_api_key(api_key_description, user_id, role_id=None):
     }
 
 
-def get_api_key(api_key_id='all'):
+def get_api_key_by_id(api_key_id='all'):
     keys = []
     results = []
     if api_key_id == 'all':
@@ -67,19 +68,26 @@ def get_api_key(api_key_id='all'):
     }
 
 
-def get_api_key_name(api_key_id):
-    key = ApiKeys.query.get(api_key_id)
-    return key.name
+def get_api_key_by_description(api_key_description):
+    keys = ApiKeys.query.get(ApiKeys.description == api_key_description)
+    return keys
+
+
+def disable_key(api_key):
+    log(f"Disabling API Key: {api_key.name}")
+    api_key.enabled = False
+    api_key.visible = False
+    db.session.add(api_key)
+    db.session.commit()
 
 
 def verify_api_key(api_key):
     access_key_name, access_secret = api_key.split(".")
-    print('Got API KEY: {0}'.format(access_key_name))
-    print('Got API Secret: {}'.format(access_secret))
+    log('auth-service', f'Got API Key: {access_key_name}')
 
     api_key = ApiKeys.query.filter_by(name=access_key_name).first()
     if api_key and api_key.enabled:
-        print('Returning User with Id: {0}'.format(str(api_key.user_id)))
+        log('auth-service', 'Returning User with Id: {0}'.format(str(api_key.user_id)))
         user = Users.query.get(api_key.user_id)
         if user.enabled and bcrypt.checkpw(access_secret.encode('utf-8'), api_key.key):
             api_key.last_used = datetime.utcnow()

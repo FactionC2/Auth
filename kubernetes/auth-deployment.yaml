@@ -17,22 +17,22 @@ spec:
           ports:
             - containerPort: 5000
           env:
-            - name: FLASK_SECRET
+            - name: FACTION_FLASK_SECRET
               valueFrom:
                 secretKeyRef:
                   key: flask-secret
                   name: auth-secrets
-            - name: JWT_SECRET
+            - name: FACTION_JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   key: jwt-secret
                   name: auth-secrets
-            - name: ADMIN_PASSWORD
+            - name: FACTION_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: admin-password
                   name: auth-secrets
-            - name: SYSTEM_PASSWORD
+            - name: FACTION_SYSTEM_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: system-password

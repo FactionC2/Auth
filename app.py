@@ -5,10 +5,10 @@ from views import auth
 from config import DB_URI
 from bootstrap import create_default_user_roles, create_default_users
 
+
 def create_app():
     app = Flask(__name__)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
-    print(f"Using connection string: {DB_URI} ")
     app.config["SQLALCHEMY_DATABASE_URI"] = DB_URI
     app.config["DEBUG"] = True
     db.init_app(app)
