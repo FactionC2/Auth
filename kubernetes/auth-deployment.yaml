@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: faction-auth
+  namespace: factionc2
 spec:
   selector:
     matchLabels:
@@ -40,7 +41,5 @@ spec:
             - name: FACTION_DB_URI
               valueFrom:
                 secretKeyRef:
-                  name: db-secrets
                   key: db-url
-      imagePullSecrets:
-        - name: regcred
+                  name: db-secrets
