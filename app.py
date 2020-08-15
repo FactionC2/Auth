@@ -1,4 +1,3 @@
-import os
 from flask import Flask
 from database import db
 from views import auth

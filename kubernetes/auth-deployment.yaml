@@ -18,6 +18,8 @@ spec:
           ports:
             - containerPort: 5000
           env:
+            - name: FACTION_LOGGING_LEVEL
+              value: "debug"
             - name: FACTION_FLASK_SECRET
               valueFrom:
                 secretKeyRef:

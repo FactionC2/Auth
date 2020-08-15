@@ -45,7 +45,7 @@ def new_api_key(api_key_description, user_id, role_id=None):
     db.session.add(api_key)
     db.session.commit()
     return {
-        'success': True,
+        'success': 'true',
         'id': api_key.id,
         'api_key': key_value
     }
@@ -63,8 +63,8 @@ def get_api_key_by_id(api_key_id='all'):
         results.append(api_key_json(key))
 
     return {
-        'Success': True,
-        'Results': results
+        'success': 'true',
+        'results': results
     }
 
 
@@ -83,11 +83,11 @@ def disable_key(api_key):
 
 def verify_api_key(api_key):
     access_key_name, access_secret = api_key.split(".")
-    log('auth-service', f'Got API Key: {access_key_name}')
+    log(f'Got API Key: {access_key_name}')
 
     api_key = ApiKeys.query.filter_by(name=access_key_name).first()
     if api_key and api_key.enabled:
-        log('auth-service', 'Returning User with Id: {0}'.format(str(api_key.user_id)))
+        log('Returning User with Id: {0}'.format(str(api_key.user_id)))
         user = Users.query.get(api_key.user_id)
         if user.enabled and bcrypt.checkpw(access_secret.encode('utf-8'), api_key.key):
             api_key.last_used = datetime.utcnow()
@@ -99,7 +99,7 @@ def verify_api_key(api_key):
             if user.username.lower() == "system":
                 role_id = api_key.role_id
             return dict({
-                "success": True,
+                "success": "true",
                 "username": user.username,
                 "id": user.id,
                 "role": get_role_name(role_id),

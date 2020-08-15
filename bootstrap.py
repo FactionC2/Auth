@@ -1,27 +1,24 @@
-from logger import log
 from models.user import Users, UserRoles
 from processing.users import create_user, create_user_role
 from config import ADMIN_PASSWORD, SYSTEM_PASSWORD
+from factionpy.logger import log
 
-AUTH_ROLES = ["admin", "agent", "operator", "read_only", "transport", "nobody"]
+AUTH_ROLES = ["user", "super-user", "read-only", "transport", "nobody", "admin"]
 
 
 def create_default_user_roles():
-    log("create_default_user_roles", "checking if user roles exist")
+    log("checking if user_roles exist")
     roles = UserRoles.query.all()
     if len(roles) == 0:
         for role in AUTH_ROLES:
-            log("create_default_user_roles", "creating user role: {}".format(role))
+            log("creating user role: {}".format(role))
             create_user_role(role)
 
 
 def create_default_users():
-    log("create_default_users", "checking if users exist")
+    log("checking if users exist", "info")
     users = Users.query.all()
     if len(users) == 0:
-        log("create_default_users", "creating users")
-        print(f"Admin Password: {ADMIN_PASSWORD}")
-        create_user("admin", ADMIN_PASSWORD, "admin")
-        print(f"System Password: {SYSTEM_PASSWORD}")
-        create_user("system", SYSTEM_PASSWORD, "nobody")
-
+        log("creating users")
+        create_user("superuser", ADMIN_PASSWORD, "super-user")
+        create_user("system", SYSTEM_PASSWORD, "admin")
