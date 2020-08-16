@@ -69,7 +69,11 @@ def get_api_key_by_id(api_key_id='all'):
 
 
 def get_api_key_by_description(api_key_description):
-    keys = ApiKeys.query.get(ApiKeys.description == api_key_description)
+    keys = None
+    try:
+        keys = ApiKeys.query.filter(ApiKeys.description == api_key_description)
+    except Exception as e:
+        log(f"error getting keys: {e}", "error")
     return keys
 
 

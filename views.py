@@ -91,7 +91,7 @@ def hasura_verify():
 
 
 @auth.route('/service/', methods=['GET'])
-def bootstrap():
+def service_key_request():
     authorization_header = request.headers.get('Authorization', None)
     token = None
     if authorization_header:
@@ -117,7 +117,9 @@ def bootstrap():
     else:
         role_id = get_role_id("admin")
         user = get_user_by_username("system")
+        log(f"got user: {user}", "debug")
         key_description = f"{key_name} (created from JWT)"
+        log(f"getting keys with description: {key_description}", "debug")
         existing_keys = get_api_key_by_description(key_description)
         for key in existing_keys:
             disable_key(key)
