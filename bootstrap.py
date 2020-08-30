@@ -3,7 +3,7 @@ from processing.users import create_user, create_user_role
 from config import ADMIN_PASSWORD, SYSTEM_PASSWORD
 from factionpy.logger import log
 
-AUTH_ROLES = ["user", "super-user", "read-only", "transport", "nobody", "admin"]
+AUTH_ROLES = ["admin", "service", "super-user", "user", "transport", "read-only", "nobody"]
 
 
 def create_default_user_roles():
@@ -20,5 +20,5 @@ def create_default_users():
     users = Users.query.all()
     if len(users) == 0:
         log("creating users")
-        create_user("superuser", ADMIN_PASSWORD, "super-user")
+        create_user("admin", ADMIN_PASSWORD, "admin")
         create_user("system", SYSTEM_PASSWORD, "admin")

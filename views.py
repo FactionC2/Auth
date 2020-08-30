@@ -115,14 +115,15 @@ def service_key_request():
             "message": "JWT does not contain required data."
         }), 401
     else:
-        role_id = get_role_id("admin")
+        role_id = get_role_id("service")
         user = get_user_by_username("system")
         log(f"got user: {user}", "debug")
         key_description = f"{key_name} (created from JWT)"
         log(f"getting keys with description: {key_description}", "debug")
         existing_keys = get_api_key_by_description(key_description)
         for key in existing_keys:
-            disable_key(key)
+            if key.enabled:
+                disable_key(key)
         result = new_api_key(
             key_description, user_id=user.id, role_id=role_id)
         return dict({
