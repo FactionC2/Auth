@@ -5,6 +5,7 @@ from processing.api_keys import new_api_key, verify_api_key, get_api_key_by_desc
 import jwt
 
 from factionpy.logger import log
+
 auth = Blueprint('auth-service', __name__,
                  template_folder='templates',
                  static_folder='static')
@@ -64,6 +65,7 @@ def verify():
             response = {"success": "false", "message": "invalid api key or secret"}
     log(f"returning response: {response}", "debug")
     return response
+
 
 # curl http://localhost:5000/verify/ \
 # -H 'Authorization: Bearer oe0y7pq3xicEEw8u.6rdnbyOJowV9iIFdFtMweTCsi03Tnu4Qqj4T8qUcvKpQwVPh'
