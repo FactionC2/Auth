@@ -13,7 +13,7 @@ flask-sqlalchemy = "*"
 bcrypt = "*"
 cryptography = "*"
 pyjwt = "*"
-factionpy = "==2020.8.15.dev0"
+factionpy = "==2020.9.7.dev3"
 
 [requires]
 python_version = "3.8"
