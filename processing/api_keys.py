@@ -86,7 +86,7 @@ def disable_key(api_key):
 
 
 def verify_api_key(api_key):
-    access_key_name, access_secret = api_key.split(".")
+    access_key_name, access_secret = api_key.split(".", 1)
     log(f'Got API Key: {access_key_name}')
 
     api_key = ApiKeys.query.filter_by(name=access_key_name).first()

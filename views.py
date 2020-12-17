@@ -117,7 +117,7 @@ def service_key_request():
             "message": "JWT does not contain required data."
         }), 401
     else:
-        role_id = get_role_id("service")
+        role_id = get_role_id("admin")
         user = get_user_by_username("system")
         log(f"got user: {user}", "debug")
         key_description = f"{key_name} (created from JWT)"
