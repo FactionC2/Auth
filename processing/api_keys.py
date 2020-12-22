@@ -103,14 +103,13 @@ def verify_api_key(api_key):
             if user.username.lower() == "system":
                 role_id = api_key.role_id
             return dict({
-                "success": "true",
                 "username": user.username,
                 "id": user.id,
                 "role": get_role_name(role_id),
                 "enabled": str(user.enabled),
                 "visible": str(user.visible),
                 "created": str(user.created),
-                "last_login": user.last_login,
+                "last_login": str(user.last_login),
                 "api_key": api_key.name,
                 "api_key_description": api_key.description
             })

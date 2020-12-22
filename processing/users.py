@@ -92,7 +92,7 @@ def update_user(user_id, username=None, role_id=None, enabled=None, visible=None
     if user_id < 3:
         return dict({
             "success": "false",
-            "message": 'Cann not change the admin or system user'
+            "message": 'Can not change the admin or system user'
         })
     user = Users.query.get(user_id)
 

@@ -30,10 +30,12 @@ def login():
 
         return dict({
             "success": "true",
-            "user_id": user.id,
-            "username": user.username,
-            "user_role": get_role_name(user.role_id),
-            "access_key": token['api_key']
+            "data": {
+                "user_id": user.id,
+                "username": user.username,
+                "user_role": get_role_name(user.role_id),
+                "access_key": token['api_key']
+            }
         })
     else:
         log("Username or password invalid")
@@ -60,7 +62,7 @@ def verify():
         log(f"Got token: {token}", "debug")
         user_info = verify_api_key(token)
         if user_info:
-            response = user_info
+            response = {"success": "true", "data": user_info}
         else:
             response = {"success": "false", "message": "invalid api key or secret"}
     log(f"returning response: {response}", "debug")
@@ -89,7 +91,7 @@ def hasura_verify():
         else:
             return {"success": "false", "message": "invalid api key or secret"}, 401
     else:
-        return {"success": "false", "message": "missing required headers: access_key"}
+        return {"success": "false", "message": "missing required headers: access_key"}, 401
 
 
 @auth.route('/service/', methods=['GET'])
