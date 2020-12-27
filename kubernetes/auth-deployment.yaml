@@ -15,15 +15,10 @@ spec:
         - name: faction-auth
           image: faction/auth
           ports:
-            - containerPort: 5000
+            - containerPort: 8000
           env:
             - name: FACTION_LOGGING_LEVEL
               value: "debug"
-            - name: FACTION_FLASK_SECRET
-              valueFrom:
-                secretKeyRef:
-                  key: flask-secret
-                  name: auth-secrets
             - name: FACTION_JWT_SECRET
               valueFrom:
                 secretKeyRef:

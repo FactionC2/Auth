@@ -1,19 +1,16 @@
 [[source]]
-name = "pypi"
-url = "https://pypi.org/simple"
+url = "https://pypi.python.org/simple"
 verify_ssl = true
-
-[dev-packages]
+name = "pypi"
 
 [packages]
-flask = "*"
+fastapi = "*"
+uvicorn = "*"
+factionpy = "==2020.12.25.dev4"
 sqlalchemy = "*"
 psycopg2-binary = "*"
-flask-sqlalchemy = "*"
-bcrypt = "*"
-cryptography = "*"
-pyjwt = "*"
-factionpy = "==2020.9.7.dev3"
+
+[dev-packages]
 
 [requires]
 python_version = "3.8"
