@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 import bcrypt
 
-from models import User, UserRole
+from factionpy.models import User, UserRole
 from database.models import Users, UserRoles
 from factionpy.logger import log
 
@@ -35,7 +35,7 @@ def authenticate_user(db: Session, username: str, password: str) -> Optional[Use
     if user:
         if bcrypt.checkpw(password.encode('utf-8'), user.password):
             log("Login successful")
-            return User.parse_obj(user)
+            return User.from_orm(user)
     log("username or password no good")
     return None
 
@@ -52,7 +52,9 @@ def create_user(db: Session, username: str, password: str, role_name: str) -> Us
     user.visible = True
     db.add(user)
     db.commit()
-    return User.parse_obj(user)
+    db.refresh(user)
+    log(f"Passing {user} to User object")
+    return User.from_orm(user)
 
 
 def update_user(db: Session, user_id, username=None, role_id=None, enabled=None, visible=None) -> User:
@@ -82,7 +84,7 @@ def update_password(db: Session, user_id: UUID, new_password: str):
     user.password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
     db.add(user)
     db.commit()
-    return User.parse_obj(user)
+    return User.from_orm(user)
 
 
 def create_user_role(db: Session, role_name: str):
@@ -90,4 +92,4 @@ def create_user_role(db: Session, role_name: str):
     user_role.name = role_name
     db.add(user_role)
     db.commit()
-    return UserRole.parse_obj(user_role)
+    return UserRole.from_orm(user_role)

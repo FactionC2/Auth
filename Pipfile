@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 fastapi = "*"
 uvicorn = "*"
-factionpy = "==2020.12.25.dev4"
+factionpy = "==2020.12.28.dev6"
 sqlalchemy = "*"
 psycopg2-binary = "*"
 

@@ -7,10 +7,10 @@ import jwt
 from factionpy.logger import log
 from factionpy.fastapi import oauth2_scheme
 from factionpy.config import FACTION_JWT_SECRET
+from factionpy.models import AvailableUserRoles
 
 from bootstrap import create_default_users, create_default_user_roles
 from database import SessionLocal
-from models import AvailableUserRoles
 from models.responses import LoginResponse, VerifyResponse, HasuraVerifyResponse, UserResponse
 from processing.users import authenticate_user, get_role_by_name, get_user_by_username, create_user
 from processing.api_keys import new_api_key, verify_api_key, get_api_key_by_description, disable_key
@@ -98,12 +98,16 @@ def service_key_request(db: Session = Depends(get_db), token=Depends(oauth2_sche
         existing_keys = get_api_key_by_description(db, key_description)
         for key in existing_keys:
             if key.enabled:
-                disable_key(key)
-        result = new_api_key(db, key_description, user_id=user.id, role_id=role_id)
+                disable_key(db, key)
+        result = new_api_key(db, key_description, user_id=user.id, role_id=role.id)
         return LoginResponse.parse_obj({
-                "user_id": user.id,
+                "id": user.id,
                 "username": user.username,
-                "user_role": role.name,
+                "role_name": role.name,
+                "enabled": user.enabled,
+                "visible": user.visible,
+                "created": user.created,
+                "last_login": user.last_login,
                 "access_key": result['api_key']
             })
 

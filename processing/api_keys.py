@@ -48,8 +48,8 @@ def get_api_key_by_name(db: Session, api_key_name: str):
     return db.query(ApiKeys).fir_by(name=api_key_name).first()
 
 
-def get_api_key_by_description(db: Session, api_key_description: str) -> List[Query]:
-    return db.query(ApiKeys).filter(ApiKeys.description == api_key_description)
+def get_api_key_by_description(db: Session, api_key_description: str):
+    return db.query(ApiKeys).filter(ApiKeys.description == api_key_description).all()
 
 
 def disable_key(db: Session, api_key: ApiKeys) -> None:
